@@ -6,10 +6,10 @@ from sqlalchemy import (
     DECIMAL,
     CHAR
 )
-from src.infrastructure.persistence.models.base_model import BaseModel
+from src.infrastructure.persistence.database.base import Base
 
 
-class CountryModel(BaseModel):
+class CountryModel(Base):
 
     __tablename__ = "countries"
 

@@ -1,8 +1,8 @@
 from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
-from src.infrastructure.persistence.models.base_model import BaseModel
+from src.infrastructure.persistence.database.base import Base
 
 
-class AlternateNameModel(BaseModel):
+class AlternateNameModel(Base):
     __tablename__ = "alternate_names"
 
     alternate_name_id = Column(Integer, primary_key=True, autoincrement=False)

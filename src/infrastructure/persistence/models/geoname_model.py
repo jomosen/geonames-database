@@ -7,10 +7,10 @@ from sqlalchemy import (
     Date,
     TIMESTAMP,
 )
-from src.infrastructure.persistence.models.base_model import BaseModel
+from src.infrastructure.persistence.database.base import Base
 
 
-class GeoNameModel(BaseModel):
+class GeoNameModel(Base):
 
     __tablename__ = "geonames"
 
