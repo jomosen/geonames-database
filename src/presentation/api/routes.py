@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Query, Depends
 from typing import Optional, List
-from src.domain.geonames.geoname_selection_criteria_vo import GeoNameSelectionCriteriaVO
 from src.application.use_cases.select_geonames_use_case import SelectGeoNamesUseCase
 from src.domain.geonames.geoname_selection_service import GeoNameSelectionService
 from src.infrastructure.persistence.unit_of_work.sql_alchemy_unit_of_work_factory import SqlAlchemyUnitOfWorkFactory
