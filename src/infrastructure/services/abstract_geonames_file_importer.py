@@ -1,0 +1,126 @@
+import os
+import requests
+import zipfile
+import csv
+import mmap
+from pathlib import Path
+from dotenv import load_dotenv
+from typing import Generator, TypeVar
+from src.application.services.abstract_geonames_importer import AbstractGeoNamesImporter
+from src.application.services.abstract_logger import AbstractLogger
+
+T = TypeVar("T")
+
+class AbstractGeoNamesFileImporter(AbstractGeoNamesImporter[T]):
+
+    def __init__(self, download_url: str, logger: AbstractLogger | None = None):
+
+        self.DOWNLOAD_URL = download_url
+        self.logger = logger
+
+        load_dotenv()
+
+        self.FILENAME = Path(self.DOWNLOAD_URL.split('/')[-1])
+        self.IS_ZIPPED = self.FILENAME.suffix.lower() == ".zip"
+
+        self.temp_path = Path(os.getenv("TEMP_PATH", "./temp"))
+        self.temp_path.mkdir(parents=True, exist_ok=True)
+        
+        self.download_target_path = self.temp_path / self.FILENAME
+        
+        if self.IS_ZIPPED:
+            self.read_target_path = self.temp_path / self.FILENAME.with_suffix(".txt")
+        else:
+            self.read_target_path = self.download_target_path
+
+    def ensure_data_is_available(self) -> None:
+
+        self.download_file()
+        if self.IS_ZIPPED:
+            self.extract_file()
+
+    def download_file(self) -> None:
+
+        if self.download_target_path.exists():
+            if self.logger:
+                self.logger.info(f"Using existing file: {self.download_target_path.name}")
+            return
+
+        if self.logger:
+            self.logger.info(f"Downloading file from {self.DOWNLOAD_URL}...")
+            
+        response = requests.get(self.DOWNLOAD_URL, stream=True)
+        response.raise_for_status()
+        
+        with open(self.download_target_path, 'wb') as f:
+            for chunk in response.iter_content(chunk_size=8192):
+                f.write(chunk)
+                
+        if self.logger:
+            self.logger.info(f"Saved file to {self.download_target_path.name}")
+    
+    def extract_file(self) -> None:
+
+        zip_path = self.download_target_path
+        txt_path = self.read_target_path
+
+        if txt_path.exists():
+            if self.logger:
+                self.logger.info(f"Extracted file already exists, skipping extraction: {txt_path.name}")
+            return
+        elif not zip_path.exists():
+            if self.logger:
+                self.logger.info(f"ZIP file not found, skipping extraction: {zip_path.name}")
+            return
+
+        txt_filename_in_zip = self.read_target_path.name 
+
+        with zipfile.ZipFile(zip_path, "r") as z:
+            z.extract(txt_filename_in_zip, self.temp_path)
+        
+        if self.logger:
+            self.logger.info(f"Extracted TXT to {txt_path.name}")
+
+    def count_total_records(self) -> int:
+
+        file_path = self.read_target_path
+
+        if not file_path.exists() or os.path.getsize(file_path) == 0:
+            return 0
+
+        try:
+            with open(file_path, "rb") as f:
+                with mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ) as mm:
+                    count = 0
+                    for line in iter(mm.readline, b""):
+                        count += 1
+                    return count
+        except Exception as e:
+            if self.logger:
+                self.logger.error(f"Error reading file with mmap: {e}. Returning 0 records.")
+            return 0
+            
+    def read_raw_data(self) -> Generator[list[str], None, None]:
+
+        file_path = self.read_target_path
+        if not file_path.exists():
+            raise FileNotFoundError(f"File not found: {file_path}")
+
+        with file_path.open("r", encoding="utf-8") as f:
+            reader = csv.reader(f, delimiter="\t")
+            for row in reader:
+                if not row or row[0].startswith("#"):
+                    continue
+                yield row
+
+    def cleanup(self) -> None:
+
+        if self.download_target_path.exists():
+            self.download_target_path.unlink()
+            if self.logger:
+                self.logger.info(f"Removed file: {self.download_target_path.name}")
+
+        if self.read_target_path.exists():
+            self.read_target_path.unlink()
+            if self.logger:
+                self.logger.info(f"Removed file: {self.read_target_path.name}")

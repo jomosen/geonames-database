@@ -1,0 +1,56 @@
+from typing import List, Optional
+from sqlalchemy.orm import Session
+from src.domain.geonames.alternatename import AlternateName
+from src.domain.geonames.abstract_geoname_alternatename_repository import AbstractGeoNameAlternateNameRepository
+from src.infrastructure.persistence.models.alternatename_model import AlternateNameModel
+from src.infrastructure.persistence.mappers.alternatename_persistence_mapper import AlternateNamePersistenceMapper
+
+
+class SqlAlchemyGeoNameAlternateNameRepository(AbstractGeoNameAlternateNameRepository):
+
+    def __init__(self, session: Session):
+        self.session = session
+
+    def find_by_id(self, alternate_name_id: int) -> Optional[AlternateName]:
+        model = (
+            self.session.query(AlternateNameModel)
+            .filter_by(alternate_name_id=alternate_name_id)
+            .first()
+        )
+        return AlternateNamePersistenceMapper.to_entity(model) if model else None
+    
+    def find_all(self, filters: Optional[dict] = None) -> List[AlternateName]:
+        query = self.session.query(AlternateNameModel)
+
+        if filters:
+            if "geoname_id" in filters:
+                query = query.filter(AlternateNameModel.geoname_id == filters["geoname_id"])
+            if "iso_language" in filters:
+                query = query.filter(AlternateNameModel.iso_language == filters["iso_language"])
+            if "is_preferred_name" in filters:
+                query = query.filter(AlternateNameModel.is_preferred_name == filters["is_preferred_name"])
+            if "is_short_name" in filters:
+                query = query.filter(AlternateNameModel.is_short_name == filters["is_short_name"])
+            if "is_colloquial" in filters:
+                query = query.filter(AlternateNameModel.is_colloquial == filters["is_colloquial"])
+            if "is_historic" in filters:
+                query = query.filter(AlternateNameModel.is_historic == filters["is_historic"])
+
+        models = query.all()
+        return [AlternateNamePersistenceMapper.to_entity(model) for model in models]
+    
+    def save(self, entity: AlternateName) -> None:
+        model = AlternateNamePersistenceMapper.to_model(entity)
+        self.session.merge(model)
+        self.session.commit()
+    
+    def count_all(self) -> int:
+        count = self.session.query(AlternateNameModel).count()
+        return count
+    
+    def bulk_insert(self, entities: List[AlternateName]) -> None:
+        models = [
+            AlternateNamePersistenceMapper.to_model(entity) for entity in entities
+        ]
+        self.session.bulk_save_objects(models)
+        self.session.commit()
