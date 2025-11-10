@@ -2,7 +2,7 @@ import os
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, scoped_session
 from dotenv import load_dotenv
-from src.infrastructure.persistence.models.base_model import BaseModel
+from src.infrastructure.persistence.database.base import Base
 from src.application.services.abstract_logger import AbstractLogger
 
 load_dotenv()
@@ -55,6 +55,6 @@ class MySQLConnector:
 
         import src.infrastructure.persistence.models
 
-        BaseModel.metadata.create_all(bind=self.engine)
+        Base.metadata.create_all(bind=self.engine)
 
         self.logger.info("Database initialized successfully")
