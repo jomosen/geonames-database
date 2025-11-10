@@ -23,17 +23,17 @@ class SqlAlchemyGeoNameAlternateNameRepository(AbstractGeoNameAlternateNameRepos
         query = self.session.query(AlternateNameModel)
 
         if filters:
-            if "geoname_id" in filters:
+            if "geoname_id" in filters and filters["geoname_id"]:
                 query = query.filter(AlternateNameModel.geoname_id == filters["geoname_id"])
-            if "iso_language" in filters:
+            if "iso_language" in filters and filters["iso_language"]:
                 query = query.filter(AlternateNameModel.iso_language == filters["iso_language"])
-            if "is_preferred_name" in filters:
+            if "is_preferred_name" in filters and filters["is_preferred_name"]:
                 query = query.filter(AlternateNameModel.is_preferred_name == filters["is_preferred_name"])
-            if "is_short_name" in filters:
+            if "is_short_name" in filters and filters["is_short_name"]:
                 query = query.filter(AlternateNameModel.is_short_name == filters["is_short_name"])
-            if "is_colloquial" in filters:
+            if "is_colloquial" in filters and filters["is_colloquial"]:
                 query = query.filter(AlternateNameModel.is_colloquial == filters["is_colloquial"])
-            if "is_historic" in filters:
+            if "is_historic" in filters and filters["is_historic"]:
                 query = query.filter(AlternateNameModel.is_historic == filters["is_historic"])
 
         models = query.all()

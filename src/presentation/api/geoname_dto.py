@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field
 from typing import Optional
+from datetime import date
 
 
 class GeoNameDTO(BaseModel):
@@ -23,7 +24,7 @@ class GeoNameDTO(BaseModel):
     elevation: Optional[int] = Field(None, description="Elevation in meters")
     dem: Optional[int] = Field(None, description="Digital elevation model (in meters)")
     timezone: Optional[str] = Field(None, description="Time zone name")
-    modification_date: Optional[str] = Field(None, description="Last modification date (YYYY-MM-DD)")
+    modification_date: Optional[date] = Field(None, description="Last modification date (YYYY-MM-DD)")
 
     class Config:
         from_attributes = True

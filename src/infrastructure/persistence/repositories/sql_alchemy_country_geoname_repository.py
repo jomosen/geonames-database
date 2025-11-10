@@ -30,16 +30,16 @@ class SqlAlchemyCountryGeoNameRepository(AbstractCountryGeoNameRepository):
             .order_by(CountryModel.country_name)
         )
 
-        if "continent_code" in filters:
+        if "continent_code" in filters and filters["continent_code"]:
             query = query.filter(CountryModel.continent_code == filters["continent_code"])
 
-        if "min_population" in filters:
+        if "min_population" in filters and filters["min_population"]:
             query = query.filter(CountryModel.population >= filters["min_population"])
 
-        if "max_population" in filters:
+        if "max_population" in filters and filters["max_population"]:
             query = query.filter(CountryModel.population <= filters["max_population"])
 
-        if "currency_code" in filters:
+        if "currency_code" in filters and filters["currency_code"]:
             query = query.filter(CountryModel.currency_code == filters["currency_code"])
 
         results = query.all()

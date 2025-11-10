@@ -19,27 +19,27 @@ class SqlAlchemyGeoNameRepository(AbstractGeoNameRepository):
         filters = filters or {}
         query = self.session.query(GeoNameModel)
 
-        if "country_code" in filters:
+        if "country_code" in filters and filters["country_code"]:
             query = query.filter(GeoNameModel.country_code == filters["country_code"])
-        if "admin1_code" in filters:
+        if "admin1_code" in filters and filters["admin1_code"]:
             query = query.filter(GeoNameModel.admin1_code == filters["admin1_code"])
-        if "admin2_code" in filters:
+        if "admin2_code" in filters and filters["admin2_code"]:
             query = query.filter(GeoNameModel.admin2_code == filters["admin2_code"])
-        if "admin3_code" in filters:
+        if "admin3_code" in filters and filters["admin3_code"]:
             query = query.filter(GeoNameModel.admin3_code == filters["admin3_code"])
-        if "admin4_code" in filters:
+        if "admin4_code" in filters and filters["admin4_code"]:
             query = query.filter(GeoNameModel.admin4_code == filters["admin4_code"])
-        if "min_population" in filters:
+        if "min_population" in filters and filters["min_population"]:
             query = query.filter(GeoNameModel.population >= filters["min_population"])
-        if "max_population" in filters:
+        if "max_population" in filters and filters["max_population"]:
             query = query.filter(GeoNameModel.population <= filters["max_population"])
-        if "feature_class" in filters:
+        if "feature_class" in filters and filters["feature_class"]:
             query = query.filter(GeoNameModel.feature_class == filters["feature_class"])
-        if "feature_code" in filters:
+        if "feature_code" in filters and filters["feature_code"]:
             query = query.filter(GeoNameModel.feature_code == filters["feature_code"])
-        if "name_like" in filters:
+        if "name_like" in filters and filters["name_like"]:
             query = query.filter(GeoNameModel.name.ilike(f"%{filters['name_like']}%"))
-        if "timezone" in filters:
+        if "timezone" in filters and filters["timezone"]:
             query = query.filter(GeoNameModel.timezone == filters["timezone"])
 
         return [GeoNamePersistenceMapper.to_entity(r) for r in query.all()]

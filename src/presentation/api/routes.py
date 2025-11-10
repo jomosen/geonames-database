@@ -1,39 +1,35 @@
 from fastapi import APIRouter, Query, Depends
 from typing import Optional, List
+from src.domain.geonames.geoname_selection_criteria_vo import GeoNameSelectionCriteriaVO
 from src.application.use_cases.select_geonames_use_case import SelectGeoNamesUseCase
 from src.domain.geonames.geoname_selection_service import GeoNameSelectionService
-from src.domain.geonames.geoname_selection_criteria_vo import GeonameSelectionCriteriaVO
-from src.infrastructure.logging.system_logger import SystemLogger
-from src.infrastructure.persistence.database.mysql_connector import MySQLConnector
 from src.infrastructure.persistence.unit_of_work.sql_alchemy_unit_of_work_factory import SqlAlchemyUnitOfWorkFactory
 from src.presentation.api.dependencies import get_uow_factory
 from src.presentation.api.geoname_dto import GeoNameDTO
 from src.presentation.api.geoname_mapper import GeoNameMapper
 
 
-router = APIRouter(prefix="/geonames", tags=["GeoNames"])
+router = APIRouter()
+
+@router.get("/a")
+def a():
+    return {"message": "Endpoint A is working"}
 
 
-@router.get("/", response_model=List[GeoNameDTO])
+@router.get("/geonames", tags=["geonames"])
 def get_geonames(
-    scope: str = Query(..., description="Search scope: 'country'"),
-    geoname_id: int = Query(..., description="GeoName ID of the country or region"),
-    depth_level: Optional[str] = Query(
-        None,
-        description="Administrative depth: 'admin1', 'admin2', 'admin3', or None for populated places",
-    ),
-    min_population: Optional[int] = Query(
-        None,
-        description="Minimum population filter (used when depth_level is None)",
-    ),
+    country_code: Optional[str] = Query(None, description="Country code (ISO Alpha-2)"),
+    feature_class: Optional[str] = Query(None, description="Feature class (e.g., 'A', 'P', etc.)",),
+    feature_code: Optional[str] = Query(None, description="Feature code (e.g., 'ADM1', 'ADM2', etc.)",),
+    min_population: Optional[int] = Query(None, description="Minimum population filter (used when depth_level is None)",),
     uow_factory: SqlAlchemyUnitOfWorkFactory = Depends(get_uow_factory),
 ):
-    criteria = GeonameSelectionCriteriaVO(
-        scope=scope,
-        geoname_id=geoname_id,
-        depth_level=depth_level,
-        min_population=min_population,
-    )
+    filters = {
+        "country_code": country_code,
+        "feature_class": feature_class,
+        "feature_code": feature_code,
+        "min_population": min_population
+    }
 
     with uow_factory() as uow:
         service = GeoNameSelectionService(
@@ -45,7 +41,7 @@ def get_geonames(
             service=service
         )
 
-        entities = use_case.execute(criteria)
+        entities = use_case.execute(filters)
         dtos = GeoNameMapper.to_dto_list(entities)
     
     return dtos

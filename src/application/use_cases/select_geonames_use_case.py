@@ -1,10 +1,10 @@
+from typing import Any
 from src.domain.geonames.geoname_selection_service import GeoNameSelectionService
-from src.domain.geonames.geoname_selection_criteria_vo import GeonameSelectionCriteriaVO
+from src.domain.geonames.geoname_selection_criteria_vo import GeoNameSelectionCriteriaVO
 
 class SelectGeoNamesUseCase:
     def __init__(self, service: GeoNameSelectionService):
         self.service = service
 
-    def execute(self, criteria_data: dict):
-        criteria = GeonameSelectionCriteriaVO(**criteria_data)
-        return self.service.select(criteria)
+    def execute(self, filters: dict[str, Any]):
+        return self.service.select(filters)
