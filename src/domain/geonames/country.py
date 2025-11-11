@@ -2,25 +2,27 @@ from dataclasses import dataclass
 from typing import Optional
 
 
-@dataclass
+@dataclass(frozen=True)
 class Country:
 
-    geoname_id: int
     iso_alpha2: str
     country_name: str
+    geoname_id: int
+
     iso_alpha3: Optional[str] = None
     iso_numeric: Optional[int] = None
     fips_code: Optional[str] = None
     capital: Optional[str] = None
-    area_in_sq_km: Optional[float] = None
+    area_sqkm: Optional[float] = None
     population: Optional[int] = None
-    continent_code: Optional[str] = None
-    continent_name: Optional[str] = None
-    languages: Optional[str] = None
+    continent: Optional[str] = None
+    tld: Optional[str] = None
     currency_code: Optional[str] = None
+    currency_name: Optional[str] = None
+    phone: Optional[str] = None
     postal_code_format: Optional[str] = None
-    north: Optional[float] = None
-    south: Optional[float] = None
-    east: Optional[float] = None
-    west: Optional[float] = None
+    postal_code_regex: Optional[str] = None
+    languages: Optional[str] = None
+    neighbours: Optional[str] = None
+    equivalent_fips_code: Optional[str] = None
     has_geonames: Optional[bool] = None

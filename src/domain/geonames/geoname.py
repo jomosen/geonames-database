@@ -3,7 +3,7 @@ from datetime import date, datetime
 from typing import Optional
 
 
-@dataclass
+@dataclass(frozen=True)
 class GeoName:
 
     geoname_id: int
