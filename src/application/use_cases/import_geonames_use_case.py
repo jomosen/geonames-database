@@ -28,22 +28,24 @@ class ImportGeoNamesUseCase(BaseUseCase):
 
         entities = self.importer.load_entities()
 
-        def batch_insert_generator(entities: Generator[GeoName, None, None]) -> Iterator[int]:
+        return total_records, self.batch_insert_generator(entities)
+    
+    def batch_insert_generator(self, entities: Generator[GeoName, None, None]) -> Iterator[int]:
             
-            batch_size = 5000
-            batch = []
+        batch_size = 5000
+        batch = []
 
-            for entity in entities:
-                batch.append(entity)
-                
-                if len(batch) >= batch_size:
-                    self.repository.bulk_insert(batch)
-                    
-                    yield batch_size 
-                    batch.clear()
+        for entity in entities:
+            batch.append(entity)
             
-            if batch:
+            if len(batch) >= batch_size:
                 self.repository.bulk_insert(batch)
-                yield len(batch)
+                
+                yield batch_size 
+                batch.clear()
+        
+        if batch:
+            self.repository.bulk_insert(batch)
+            yield len(batch)
 
-        return total_records, batch_insert_generator(entities)
+        self.importer.cleanup()
