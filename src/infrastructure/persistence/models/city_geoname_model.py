@@ -1,6 +1,6 @@
 from src.infrastructure.persistence.models.abstract_geoname_model import AbstractGeoNameModel
 
 
-class GeoNameModel(AbstractGeoNameModel):
+class CityGeoNameModel(AbstractGeoNameModel):
 
-    __tablename__ = "geonames"
+    __tablename__ = "cities"
