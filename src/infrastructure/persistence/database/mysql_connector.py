@@ -7,6 +7,7 @@ from src.application.services.abstract_logger import AbstractLogger
 
 load_dotenv()
 
+
 class MySQLConnector:
 
     def __init__(self, logger: AbstractLogger):
