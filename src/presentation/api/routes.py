@@ -7,7 +7,6 @@ from src.presentation.api.dependencies import get_uow_factory
 from src.presentation.api.geoname_dto import GeoNameDTO
 from src.presentation.api.geoname_mapper import GeoNameMapper
 
-
 router = APIRouter()
 
 
