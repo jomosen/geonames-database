@@ -1,11 +1,11 @@
-from src.domain.geonames.geoname import GeoName 
 from typing import List, Any
+from src.infrastructure.services.mappers.abstract_file_row_mapper import AbstractFileRowMapper
+from src.domain.geonames.geoname import GeoName 
 
 
-class GeoNameFileRowMapper:
+class GeoNameFileRowMapper(AbstractFileRowMapper[GeoName]):
 
-    @staticmethod
-    def to_entity(row: List[Any]) -> GeoName:
+    def to_entity(self, row: List[Any]) -> GeoName:
 
         return GeoName(
             geoname_id=int(row[0]),

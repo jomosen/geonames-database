@@ -1,11 +1,11 @@
-from src.domain.geonames.alternatename import AlternateName 
 from typing import List, Any
+from src.infrastructure.services.mappers.abstract_file_row_mapper import AbstractFileRowMapper
+from src.domain.geonames.alternatename import AlternateName 
 
 
-class AlternateNameFileRowMapper:
+class AlternateNameFileRowMapper(AbstractFileRowMapper[AlternateName]):
 
-    @staticmethod
-    def to_entity(row: List[Any]) -> AlternateName:
+    def to_entity(self, row: List[Any]) -> AlternateName:
         
         return AlternateName(
             alternate_name_id=int(row[0]),
