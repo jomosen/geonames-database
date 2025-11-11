@@ -1,10 +1,8 @@
-from src.infrastructure.persistence.models.geoname_model import GeoNameModel
 from src.infrastructure.persistence.repositories.sql_alchemy_geoname_repository import SqlAlchemyGeoNameRepository
-from src.domain.geonames.abstract_geoname_repository import AbstractGeoNameRepository
+from src.infrastructure.persistence.models.city_geoname_model import CityGeoNameModel
 
 
-class SqlAlchemyCityGeoNameRepository(SqlAlchemyGeoNameRepository, AbstractGeoNameRepository):
+class SqlAlchemyCityGeoNameRepository(SqlAlchemyGeoNameRepository):
 
-    def count_all(self) -> int:
-        count = self.session.query(GeoNameModel).where(GeoNameModel.feature_class == "P").count()
-        return count
+    def __init__(self, session):
+        super().__init__(session, model_class=CityGeoNameModel)
