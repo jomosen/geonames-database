@@ -1,6 +1,6 @@
 from datetime import date, datetime
 from decimal import Decimal
-from typing import Optional
+from typing import Optional, Type, TypeVar
 from src.domain.geonames.geoname import GeoName
 from src.infrastructure.persistence.models.geoname_model import GeoNameModel
 
@@ -8,9 +8,9 @@ from src.infrastructure.persistence.models.geoname_model import GeoNameModel
 class GeoNamePersistenceMapper:
 
     @staticmethod
-    def from_entity(entity: GeoName) -> GeoNameModel:
+    def to_model(entity: GeoName, model_class: Type[GeoNameModel] = GeoNameModel) -> GeoNameModel:
 
-        return GeoNameModel(
+        return model_class(
             geoname_id=entity.geoname_id,
             name=entity.name,
             asciiname=entity.asciiname,
@@ -20,16 +20,23 @@ class GeoNamePersistenceMapper:
             feature_class=entity.feature_class,
             feature_code=entity.feature_code,
             country_code=entity.country_code,
+            cc2=entity.cc2,
             admin1_code=entity.admin1_code,
             admin2_code=entity.admin2_code,
+            admin3_code=entity.admin3_code,
+            admin4_code=entity.admin4_code,
             population=entity.population,
+            elevation=entity.elevation,
+            dem=entity.dem,
             timezone=entity.timezone,
             modification_date=entity.modification_date,
+            created_at=getattr(entity, "created_at", None),
+            updated_at=getattr(entity, "updated_at", None),
         )
 
     @staticmethod
-    def to_entity(model: Optional[GeoNameModel]) -> Optional[GeoName]:
-        
+    def to_entity(model: Optional[GeoNameModel]) -> GeoName | None:
+
         if model is None:
             return None
 
@@ -52,35 +59,7 @@ class GeoNamePersistenceMapper:
             elevation=model.elevation,
             dem=model.dem,
             timezone=model.timezone,
-            modification_date=model.modification_date
-            if isinstance(model.modification_date, date)
-            else None,
+            modification_date=str(model.modification_date) if isinstance(model.modification_date, date) else model.modification_date,
             created_at=model.created_at if isinstance(model.created_at, datetime) else None,
             updated_at=model.updated_at if isinstance(model.updated_at, datetime) else None,
-        )
-
-    @staticmethod
-    def to_model(entity: GeoName) -> GeoNameModel:
-        return GeoNameModel(
-            geoname_id=entity.geoname_id,
-            name=entity.name,
-            asciiname=entity.asciiname,
-            alternatenames=entity.alternatenames,
-            latitude=entity.latitude,
-            longitude=entity.longitude,
-            feature_class=entity.feature_class,
-            feature_code=entity.feature_code,
-            country_code=entity.country_code,
-            cc2=entity.cc2,
-            admin1_code=entity.admin1_code,
-            admin2_code=entity.admin2_code,
-            admin3_code=entity.admin3_code,
-            admin4_code=entity.admin4_code,
-            population=entity.population,
-            elevation=entity.elevation,
-            dem=entity.dem,
-            timezone=entity.timezone,
-            modification_date=entity.modification_date,
-            created_at=entity.created_at,
-            updated_at=entity.updated_at,
         )
