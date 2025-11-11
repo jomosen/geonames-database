@@ -10,25 +10,25 @@ from src.presentation.api.geoname_mapper import GeoNameMapper
 
 router = APIRouter()
 
-@router.get("/a")
-def a():
-    return {"message": "Endpoint A is working"}
 
-
-@router.get("/geonames", tags=["geonames"])
+@router.get("/geonames/{country_code}", tags=["geonames"])
 def get_geonames(
-    country_code: Optional[str] = Query(None, description="Country code (ISO Alpha-2)"),
+    country_code: Optional[str],
     feature_class: Optional[str] = Query(None, description="Feature class (e.g., 'A', 'P', etc.)",),
     feature_code: Optional[str] = Query(None, description="Feature code (e.g., 'ADM1', 'ADM2', etc.)",),
     min_population: Optional[int] = Query(None, description="Minimum population filter (used when depth_level is None)",),
     uow_factory: SqlAlchemyUnitOfWorkFactory = Depends(get_uow_factory),
 ):
-    filters = {
-        "country_code": country_code,
-        "feature_class": feature_class,
-        "feature_code": feature_code,
-        "min_population": min_population
-    }
+    filters = {}
+
+    if country_code:
+        filters["country_code"] = country_code
+    if feature_class:
+        filters["feature_class"] = feature_class    
+    if feature_code:
+        filters["feature_code"] = feature_code
+    if min_population:
+        filters["min_population"] = min_population
 
     with uow_factory() as uow:
         service = GeoNameSelectionService(

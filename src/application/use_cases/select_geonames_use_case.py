@@ -3,6 +3,7 @@ from src.domain.geonames.geoname_selection_service import GeoNameSelectionServic
 
 
 class SelectGeoNamesUseCase:
+
     def __init__(self, service: GeoNameSelectionService):
         self.service = service
 

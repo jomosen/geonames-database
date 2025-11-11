@@ -1,4 +1,4 @@
-from typing import List, Dict, Any
+from typing import List, Any
 from src.domain.geonames.geoname import GeoName
 from src.domain.geonames.abstract_geoname_repository import AbstractGeoNameRepository
 from src.domain.geonames.abstract_country_geoname_repository import AbstractCountryGeoNameRepository
@@ -13,11 +13,14 @@ class GeoNameSelectionService:
         self.geoname_repository = geoname_repository
         self.country_repository = country_repository
 
-    def select(self, filters: Dict[str, Any]) -> List[GeoName]:
+    def select(self, filters: dict[str, Any]) -> List[GeoName]:
 
-        geonames = []
-        
         try:
+            if not filters:
+                return []
+        
+            geonames = []
+
             if filters.get("scope") == "country" and filters.get("geoname_id"):
                 country = self.country_repository.find_by_id(filters.get("geoname_id"))
                 if not country:
