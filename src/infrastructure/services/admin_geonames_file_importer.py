@@ -1,9 +1,9 @@
 import os
 import mmap
 from typing import Generator
+from src.infrastructure.services.mappers.abstract_file_row_mapper import AbstractFileRowMapper
 from src.application.services.abstract_geonames_importer import AbstractGeoNamesImporter
 from src.infrastructure.services.abstract_geonames_file_importer import AbstractGeoNamesFileImporter
-from src.infrastructure.services.mappers.geoname_file_row_importer import GeoNameFileRowMapper
 from src.domain.geonames.geoname import GeoName
 
 
@@ -11,11 +11,11 @@ class AdminGeoNamesFileImporter(AbstractGeoNamesFileImporter, AbstractGeoNamesIm
 
     FILE_URL = "https://download.geonames.org/export/dump/allCountries.zip"
 
-    def __init__(self):
-        super().__init__(download_url=self.FILE_URL)
-        self.mapper = GeoNameFileRowMapper()
+    def __init__(self, mapper: AbstractFileRowMapper[GeoName]):
+        super().__init__(download_url=self.FILE_URL, mapper=mapper)
 
     def count_total_records(self) -> int:
+
         file_path = self.read_target_path
 
         if not file_path.exists() or os.path.getsize(file_path) == 0:

@@ -16,3 +16,7 @@ class AbstractGeoNamesImporter(ABC, Generic[T]):
     @abstractmethod
     def count_total_records(self) -> int:
         pass
+
+    @abstractmethod
+    def cleanup(self) -> None:
+        pass

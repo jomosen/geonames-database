@@ -8,14 +8,20 @@ from dotenv import load_dotenv
 from typing import Generator, TypeVar
 from src.application.services.abstract_geonames_importer import AbstractGeoNamesImporter
 from src.application.services.abstract_logger import AbstractLogger
+from src.infrastructure.services.mappers.abstract_file_row_mapper import AbstractFileRowMapper
 
 T = TypeVar("T")
 
+
 class AbstractGeoNamesFileImporter(AbstractGeoNamesImporter[T]):
 
-    def __init__(self, download_url: str, logger: AbstractLogger | None = None):
+    def __init__(self, 
+                 download_url: str, 
+                 mapper: AbstractFileRowMapper, 
+                 logger: AbstractLogger | None = None):
 
         self.DOWNLOAD_URL = download_url
+        self.mapper = mapper
         self.logger = logger
 
         load_dotenv()
@@ -23,7 +29,7 @@ class AbstractGeoNamesFileImporter(AbstractGeoNamesImporter[T]):
         self.FILENAME = Path(self.DOWNLOAD_URL.split('/')[-1])
         self.IS_ZIPPED = self.FILENAME.suffix.lower() == ".zip"
 
-        self.temp_path = Path(os.getenv("TEMP_PATH", "./temp"))
+        self.temp_path = Path(os.getenv("TEMP_PATH", "./tmp"))
         self.temp_path.mkdir(parents=True, exist_ok=True)
         
         self.download_target_path = self.temp_path / self.FILENAME
@@ -99,6 +105,17 @@ class AbstractGeoNamesFileImporter(AbstractGeoNamesImporter[T]):
             if self.logger:
                 self.logger.error(f"Error reading file with mmap: {e}. Returning 0 records.")
             return 0
+        
+    def load_entities(self) -> Generator[T, None, None]:
+
+        for raw_row in self.read_raw_data():
+            try:
+                entity = self.mapper.to_entity(raw_row)
+                yield entity
+            except ValueError:
+                continue
+            except Exception as e:
+                print(f"Error processing row {raw_row}: {e}")
             
     def read_raw_data(self) -> Generator[list[str], None, None]:
 
@@ -114,11 +131,6 @@ class AbstractGeoNamesFileImporter(AbstractGeoNamesImporter[T]):
                 yield row
 
     def cleanup(self) -> None:
-
-        if self.download_target_path.exists():
-            self.download_target_path.unlink()
-            if self.logger:
-                self.logger.info(f"Removed file: {self.download_target_path.name}")
 
         if self.read_target_path.exists():
             self.read_target_path.unlink()
