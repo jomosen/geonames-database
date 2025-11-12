@@ -31,7 +31,7 @@ class SqlAlchemyCountryGeoNameRepository(AbstractCountryGeoNameRepository):
         )
 
         if "continent_code" in filters and filters["continent_code"]:
-            query = query.filter(CountryModel.continent_code == filters["continent_code"])
+            query = query.filter(CountryModel.continent == filters["continent_code"])
 
         if "min_population" in filters and filters["min_population"]:
             query = query.filter(CountryModel.population >= filters["min_population"])
