@@ -3,19 +3,22 @@ import requests
 from dotenv import load_dotenv
 from typing import Generator, List, Dict, Any
 from functools import cached_property
-from src.application.services.mappers.country_input_mapper import CountryInputMapper
 from src.application.services.abstract_geonames_importer import AbstractGeoNamesImporter
 from src.domain.geonames.country import Country
+from src.infrastructure.services.mappers.country_api_mapper import CountryApiMapper
 
 
 class CountriesApiImporter(AbstractGeoNamesImporter[Country]):
 
     ENDPOINT_URL = "http://api.geonames.org/countryInfoJSON"
 
-    def __init__(self):
+    def __init__(self, mapper: CountryApiMapper):
+
+        self.mapper = mapper
+
         load_dotenv() 
-        self._username = os.getenv("GEONAMES_USERNAME")
         
+        self._username = os.getenv("GEONAMES_USERNAME")
         if not self._username:
             raise ValueError("GEONAMES_USERNAME environment variable not set in configuration.")
     
@@ -32,8 +35,11 @@ class CountriesApiImporter(AbstractGeoNamesImporter[Country]):
         country_data_list = self._fetch_api_data
 
         for country_data in country_data_list:
-            country = CountryInputMapper.from_api(country_data)
+            country = self.mapper.from_api(country_data)
             yield country
+
+    def cleanup(self):
+        pass
 
     @cached_property
     def _fetch_api_data(self) -> List[Dict[str, Any]]:
