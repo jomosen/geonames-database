@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Optional, List, Dict
-from src.domain.geonames.alternatename import AlternateName
+from domain.alternatename import AlternateName
 
 
 class AbstractAlternateNameRepository(ABC):

@@ -1,7 +1,7 @@
 from typing import List, Any
-from src.domain.geonames.geoname import GeoName
-from src.domain.geonames.abstract_geoname_repository import AbstractGeoNameRepository
-from src.domain.geonames.abstract_country_geoname_repository import AbstractCountryGeoNameRepository
+from domain.geoname import GeoName
+from domain.abstract_geoname_repository import AbstractGeoNameRepository
+from domain.abstract_country_geoname_repository import AbstractCountryGeoNameRepository
 
 
 class GeoNameSelectionService:
@@ -39,7 +39,7 @@ class GeoNameSelectionService:
                     filters["min_population"] = filters.get("min_population")
                 
             geonames = self.geoname_repository.find_all(filters)
-        except ValueError as e:
+        except Exception as e:
             raise e
         
         return geonames
