@@ -4,7 +4,7 @@ from src.application.services.abstract_unit_of_work_factory import AbstractUnitO
 from src.application.use_cases.base_use_case import BaseUseCase
 from src.application.use_cases.import_geonames_use_case import ImportGeoNamesUseCase
 from src.infrastructure.services.tqdm_progress_bar import TqdmProgressBar
-from src.presentation.cli.geonames.commands.geonames_import_config import GEONAMES_IMPORT_CONFIG
+from src.presentation.cli.commands.geonames_import_config import GEONAMES_IMPORT_CONFIG
 
 
 def import_geonames_data(uow_factory: AbstractUnitOfWorkFactory, logger: AbstractLogger | None = None):

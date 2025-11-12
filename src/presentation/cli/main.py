@@ -5,7 +5,7 @@ from src.infrastructure.persistence.models.admin_geoname_model import AdminGeoNa
 from src.infrastructure.logging.system_logger import SystemLogger
 from src.infrastructure.persistence.database.mysql_connector import MySQLConnector
 from src.infrastructure.persistence.unit_of_work.sql_alchemy_unit_of_work_factory import SqlAlchemyUnitOfWorkFactory
-from src.presentation.cli.geonames.commands.import_geonames_command import import_geonames_data
+from src.presentation.cli.commands.import_geonames_command import import_geonames_data
 
 
 def main():
