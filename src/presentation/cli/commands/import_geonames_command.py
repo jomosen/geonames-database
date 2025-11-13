@@ -1,25 +1,26 @@
 from typing import Any, Type
-from src.application.services.abstract_logger import AbstractLogger
-from src.application.services.abstract_unit_of_work_factory import AbstractUnitOfWorkFactory
+from src.infrastructure.services.file_downloader import FileDownloader
+from src.application.contracts.abstract_logger import AbstractLogger
+from src.application.contracts.abstract_unit_of_work_factory import AbstractUnitOfWorkFactory
 from src.application.use_cases.base_use_case import BaseUseCase
 from src.application.use_cases.import_geonames_use_case import ImportGeoNamesUseCase
 from src.infrastructure.services.tqdm_progress_bar import TqdmProgressBar
-from src.presentation.cli.commands.geonames_import_config import GEONAMES_IMPORT_CONFIG
+from src.presentation.cli.commands.geonames_import_config import build_geonames_import_config
 
 
 def import_geonames_data(uow_factory: AbstractUnitOfWorkFactory, logger: AbstractLogger | None = None):
+
+    geonames_import_config_tasks = build_geonames_import_config(logger)
     
     with uow_factory() as uow:
 
-        for import_config in GEONAMES_IMPORT_CONFIG:
+        for import_config_task in geonames_import_config_tasks:
             
             _run_import(
-                getattr(uow, import_config["repository_attr"]),
-                import_config["importer_cls"](
-                    mapper=import_config["mapper_cls"]()
-                ),
+                getattr(uow, import_config_task["repository_attr"]),
+                import_config_task["importer_cls"],
                 ImportGeoNamesUseCase,
-                import_config["description"],
+                import_config_task["description"],
                 logger,
             )
 
@@ -30,16 +31,12 @@ def _run_import(repository: Any, importer: Any, use_case_cls: Type[BaseUseCase],
     try:
         total, insert_generator = use_case.execute()
         if not total:
+            if logger:
+                logger.info(f"No need to import {description}")
             return
-        
-        if logger:
-            logger.info(f"{description}: {total} records to import")
 
         with TqdmProgressBar(total=total, desc=description, unit="records", colour="green") as progress:
             progress.run(insert_generator)
-
-        if logger:
-            logger.info(f"{total} records imported")
     
     except Exception as e:
         if logger:

@@ -13,12 +13,15 @@ def main():
     print(figlet.renderText("GeoNames Importer"))
 
     logger = SystemLogger()
+    logger.info("Process started")
 
     db_connector = MySQLConnector(logger)
     db_connector.init_db()
     uow_factory = SqlAlchemyUnitOfWorkFactory(db_connector)
 
     import_geonames_data(uow_factory, logger)
+
+    logger.info("Process finished")
 
 if __name__ == "__main__":
     main()
