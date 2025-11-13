@@ -1,6 +1,7 @@
-from typing import Any
-from application.services.abstract_logger import AbstractLogger
-from domain.geoname_selection_service import GeoNameSelectionService
+from typing import Any, List
+from src.application.contracts.abstract_logger import AbstractLogger
+from src.domain.geoname import GeoName
+from src.domain.geoname_selection_service import GeoNameSelectionService
 
 
 class SelectGeoNamesUseCase:
@@ -12,16 +13,13 @@ class SelectGeoNamesUseCase:
         self.service = service
         self.logger = logger
 
-    def execute(self, filters: dict[str, Any]):
-
-        geonames = []
+    def execute(self, filters: dict[str, Any]) -> List[GeoName]:
 
         try:
             geonames = self.service.select(filters)
+            return geonames
 
         except Exception as e:
             if self.logger:
                 self.logger.error(e)
             raise e
-        
-        return geonames

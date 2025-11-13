@@ -1,18 +1,21 @@
 from typing import Generator, Tuple, Iterator
+from src.application.contracts.abstract_logger import AbstractLogger
+from src.application.contracts.abstract_geonames_importer import AbstractGeoNamesImporter
 from src.application.use_cases.base_use_case import BaseUseCase
-from src.domain.geonames.geoname import GeoName
-from src.domain.geonames.abstract_geoname_repository import AbstractGeoNameRepository
-from src.application.services.abstract_geonames_importer import AbstractGeoNamesImporter
+from src.domain.geoname import GeoName
+from src.domain.abstract_geoname_repository import AbstractGeoNameRepository
 
 
 class ImportGeoNamesUseCase(BaseUseCase):
 
     def __init__(self, 
                  repository: AbstractGeoNameRepository, 
-                 importer: AbstractGeoNamesImporter[GeoName]):
+                 importer: AbstractGeoNamesImporter[GeoName],
+                 logger: AbstractLogger | None = None):
         
         self.repository = repository
         self.importer = importer
+        self.logger = logger
         
     def execute(self) -> Tuple[int, Iterator[int]]: 
 
@@ -28,9 +31,9 @@ class ImportGeoNamesUseCase(BaseUseCase):
 
         entities = self.importer.load_entities()
 
-        return total_records, self.batch_insert_generator(entities)
+        return total_records, self._batch_insert_generator(entities)
     
-    def batch_insert_generator(self, entities: Generator[GeoName, None, None]) -> Iterator[int]:
+    def _batch_insert_generator(self, entities: Generator[GeoName, None, None]) -> Iterator[int]:
             
         batch_size = 5000
         batch = []
