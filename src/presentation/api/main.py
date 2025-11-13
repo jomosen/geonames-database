@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from src.presentation.api import routes
 from src.presentation.api.error_handlers import invalid_geoname_selection_handler
-from src.domain.geonames.exceptions import InvalidGeoNameSelectionError
+from domain.exceptions import InvalidGeoNameSelectionError
 
 app = FastAPI(title="GeoNames API", version="1.0", debug=True)
 

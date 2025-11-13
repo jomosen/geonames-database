@@ -1,11 +1,11 @@
 from fastapi import APIRouter, Query, Depends
 from typing import Optional, List
 from src.application.use_cases.select_geonames_use_case import SelectGeoNamesUseCase
-from src.domain.geonames.geoname_selection_service import GeoNameSelectionService
+from domain.geoname_selection_service import GeoNameSelectionService
 from src.infrastructure.persistence.unit_of_work.sql_alchemy_unit_of_work_factory import SqlAlchemyUnitOfWorkFactory
 from src.presentation.api.dependencies import get_uow_factory
-from src.presentation.api.geoname_dto import GeoNameDTO
-from src.presentation.api.geoname_mapper import GeoNameMapper
+from application.dtos.geoname_dto import GeoNameDTO
+from application.mappers.geoname_output_mapper import GeoNameMapper
 
 router = APIRouter()
 
