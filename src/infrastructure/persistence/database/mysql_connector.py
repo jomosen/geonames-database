@@ -3,7 +3,7 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, scoped_session
 from dotenv import load_dotenv
 from src.infrastructure.persistence.database.base import Base
-from src.application.services.abstract_logger import AbstractLogger
+from src.application.contracts.abstract_logger import AbstractLogger
 
 load_dotenv()
 

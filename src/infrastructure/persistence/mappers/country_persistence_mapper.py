@@ -1,6 +1,6 @@
 from typing import Optional
 from decimal import Decimal
-from src.domain.geonames.country import Country
+from src.domain.country import Country
 from src.infrastructure.persistence.models.country_model import CountryModel
 
 

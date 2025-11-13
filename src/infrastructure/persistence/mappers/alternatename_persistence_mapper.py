@@ -1,5 +1,5 @@
 from typing import Optional
-from src.domain.geonames.alternatename import AlternateName
+from src.domain.alternatename import AlternateName
 from src.infrastructure.persistence.models.alternatename_model import AlternateNameModel
 
 

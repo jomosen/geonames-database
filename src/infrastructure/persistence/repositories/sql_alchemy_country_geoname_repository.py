@@ -1,8 +1,8 @@
 from typing import List, Optional, Dict
 from sqlalchemy.orm import Session
 from sqlalchemy import func
-from src.domain.geonames.abstract_country_geoname_repository import AbstractCountryGeoNameRepository
-from src.domain.geonames.country import Country
+from src.domain.abstract_country_geoname_repository import AbstractCountryGeoNameRepository
+from src.domain.country import Country
 from src.infrastructure.persistence.models.country_model import CountryModel
 from src.infrastructure.persistence.models.geoname_model import GeoNameModel
 from src.infrastructure.persistence.mappers.country_persistence_mapper import CountryPersistenceMapper

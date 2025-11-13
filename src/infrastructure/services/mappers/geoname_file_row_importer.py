@@ -1,6 +1,6 @@
 from typing import List, Any
 from src.infrastructure.services.mappers.abstract_file_row_mapper import AbstractFileRowMapper
-from src.domain.geonames.geoname import GeoName 
+from src.domain.geoname import GeoName 
 
 
 class GeoNameFileRowMapper(AbstractFileRowMapper[GeoName]):

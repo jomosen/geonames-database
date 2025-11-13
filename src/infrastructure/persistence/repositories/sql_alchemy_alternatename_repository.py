@@ -1,7 +1,7 @@
 from typing import List, Optional
 from sqlalchemy.orm import Session
-from src.domain.geonames.alternatename import AlternateName
-from src.domain.geonames.abstract_alternatename_repository import AbstractAlternateNameRepository
+from src.domain.alternatename import AlternateName
+from src.domain.abstract_alternatename_repository import AbstractAlternateNameRepository
 from src.infrastructure.persistence.models.alternatename_model import AlternateNameModel
 from src.infrastructure.persistence.mappers.alternatename_persistence_mapper import AlternateNamePersistenceMapper
 

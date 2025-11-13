@@ -1,4 +1,4 @@
-from src.application.services.abstract_unit_of_work_factory import AbstractUnitOfWorkFactory
+from src.application.contracts.abstract_unit_of_work_factory import AbstractUnitOfWorkFactory
 from src.infrastructure.persistence.unit_of_work.sql_alchemy_unit_of_work import SqlAlchemyUnitOfWork
 from src.infrastructure.persistence.database.mysql_connector import MySQLConnector
 from src.infrastructure.persistence.repositories.sql_alchemy_geoname_repository import SqlAlchemyGeoNameRepository

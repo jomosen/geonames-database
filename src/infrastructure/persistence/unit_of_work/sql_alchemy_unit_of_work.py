@@ -1,4 +1,4 @@
-from src.application.services.abstract_unit_of_work import AbstractUnitOfWork
+from src.application.contracts.abstract_unit_of_work import AbstractUnitOfWork
 
 
 class SqlAlchemyUnitOfWork(AbstractUnitOfWork):

@@ -6,9 +6,11 @@ import mmap
 from pathlib import Path
 from dotenv import load_dotenv
 from typing import Generator, TypeVar
-from src.application.services.abstract_geonames_importer import AbstractGeoNamesImporter
-from src.application.services.abstract_logger import AbstractLogger
+from src.application.contracts.abstract_file_downloader import AbstractFileDownloader
+from src.application.contracts.abstract_geonames_importer import AbstractGeoNamesImporter
+from src.application.contracts.abstract_logger import AbstractLogger
 from src.infrastructure.services.mappers.abstract_file_row_mapper import AbstractFileRowMapper
+from src.infrastructure.services.exceptions.zip_unpack_error import ZipUnpackError
 
 T = TypeVar("T")
 
@@ -17,10 +19,12 @@ class AbstractGeoNamesFileImporter(AbstractGeoNamesImporter[T]):
 
     def __init__(self, 
                  download_url: str, 
+                 file_downloader: AbstractFileDownloader,
                  mapper: AbstractFileRowMapper, 
                  logger: AbstractLogger | None = None):
 
         self.DOWNLOAD_URL = download_url
+        self.file_downloader = file_downloader
         self.mapper = mapper
         self.logger = logger
 
@@ -41,26 +45,27 @@ class AbstractGeoNamesFileImporter(AbstractGeoNamesImporter[T]):
 
     def ensure_data_is_available(self) -> None:
 
-        self.download_file()
-        if self.IS_ZIPPED:
-            self.extract_file()
-
-    def download_file(self) -> None:
-
+        if self.read_target_path.exists():
+            if self.logger:
+                self.logger.info(f"Using existing file: {self.read_target_path.name}")
+            return
+        
         if self.download_target_path.exists():
             if self.logger:
                 self.logger.info(f"Using existing file: {self.download_target_path.name}")
             return
 
+        self.download_file()
+
+        if self.IS_ZIPPED:
+            self.extract_file()
+
+    def download_file(self) -> None:
+
         if self.logger:
             self.logger.info(f"Downloading file from {self.DOWNLOAD_URL}...")
-            
-        response = requests.get(self.DOWNLOAD_URL, stream=True)
-        response.raise_for_status()
-        
-        with open(self.download_target_path, 'wb') as f:
-            for chunk in response.iter_content(chunk_size=8192):
-                f.write(chunk)
+
+        self.file_downloader.download(self.DOWNLOAD_URL, str(self.download_target_path))
                 
         if self.logger:
             self.logger.info(f"Saved file to {self.download_target_path.name}")
@@ -70,22 +75,25 @@ class AbstractGeoNamesFileImporter(AbstractGeoNamesImporter[T]):
         zip_path = self.download_target_path
         txt_path = self.read_target_path
 
-        if txt_path.exists():
-            if self.logger:
-                self.logger.info(f"Extracted file already exists, skipping extraction: {txt_path.name}")
-            return
-        elif not zip_path.exists():
+        if not zip_path.exists():
             if self.logger:
                 self.logger.info(f"ZIP file not found, skipping extraction: {zip_path.name}")
             return
 
         txt_filename_in_zip = self.read_target_path.name 
 
-        with zipfile.ZipFile(zip_path, "r") as z:
-            z.extract(txt_filename_in_zip, self.temp_path)
-        
-        if self.logger:
-            self.logger.info(f"Extracted TXT to {txt_path.name}")
+        try:
+            with zipfile.ZipFile(zip_path, "r") as z:
+                z.extract(txt_filename_in_zip, self.temp_path)
+
+                if self.logger:
+                    self.logger.info(f"Extracted TXT to {txt_path.name}")
+
+        except Exception as e:
+            if os.path.exists(zip_path):
+                os.remove(zip_path)
+
+            raise ZipUnpackError(f"Failed to unpack {zip_path}: {e}") from e
 
     def count_total_records(self) -> int:
 
@@ -116,6 +124,8 @@ class AbstractGeoNamesFileImporter(AbstractGeoNamesImporter[T]):
                 continue
             except Exception as e:
                 print(f"Error processing row {raw_row}: {e}")
+
+        self.cleanup()
             
     def read_raw_data(self) -> Generator[list[str], None, None]:
 
@@ -132,7 +142,7 @@ class AbstractGeoNamesFileImporter(AbstractGeoNamesImporter[T]):
 
     def cleanup(self) -> None:
 
-        if self.read_target_path.exists():
-            self.read_target_path.unlink()
+        if self.download_target_path.exists():
+            self.download_target_path.unlink()
             if self.logger:
-                self.logger.info(f"Removed file: {self.read_target_path.name}")
+                self.logger.info(f"Removed file: {self.download_target_path.name}")

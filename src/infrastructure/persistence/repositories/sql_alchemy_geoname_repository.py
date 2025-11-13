@@ -1,7 +1,7 @@
 from typing import Generic, List, Optional, Dict, Type, TypeVar
 from sqlalchemy.orm import Session
-from src.domain.geonames.abstract_geoname_repository import AbstractGeoNameRepository
-from src.domain.geonames.geoname import GeoName
+from src.domain.abstract_geoname_repository import AbstractGeoNameRepository
+from src.domain.geoname import GeoName
 from src.infrastructure.persistence.models.geoname_model import GeoNameModel
 from src.infrastructure.persistence.mappers.geoname_persistence_mapper import GeoNamePersistenceMapper
 
