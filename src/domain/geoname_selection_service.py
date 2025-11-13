@@ -1,7 +1,7 @@
 from typing import List, Any
-from domain.geoname import GeoName
-from domain.abstract_geoname_repository import AbstractGeoNameRepository
-from domain.abstract_country_geoname_repository import AbstractCountryGeoNameRepository
+from src.domain.geoname import GeoName
+from src.domain.abstract_geoname_repository import AbstractGeoNameRepository
+from src.domain.abstract_country_geoname_repository import AbstractCountryGeoNameRepository
 
 
 class GeoNameSelectionService:

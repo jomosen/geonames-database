@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Optional, List, Dict
-from domain.country import Country
+from src.domain.country import Country
 
 
 class AbstractCountryGeoNameRepository(ABC):
