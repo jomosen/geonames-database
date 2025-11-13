@@ -1,4 +1,5 @@
 from typing import Generic, List, Optional, Dict, Type, TypeVar
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 from src.domain.abstract_geoname_repository import AbstractGeoNameRepository
 from src.domain.geoname import GeoName
@@ -67,4 +68,9 @@ class SqlAlchemyGeoNameRepository(AbstractGeoNameRepository):
     def bulk_insert(self, entities: List[GeoName]) -> None:
         models = [GeoNamePersistenceMapper.to_model(entity, model_class=self.model_class) for entity in entities]
         self.session.bulk_save_objects(models)
+        self.session.commit()
+
+    def truncate(self):
+        table_name = self.model_class.__tablename__
+        self.session.execute(text(f"TRUNCATE TABLE {table_name}"))
         self.session.commit()

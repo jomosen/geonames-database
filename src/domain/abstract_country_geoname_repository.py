@@ -24,3 +24,7 @@ class AbstractCountryGeoNameRepository(ABC):
     @abstractmethod
     def bulk_insert(self, entities: List[Country]) -> None:
         pass
+
+    @abstractmethod
+    def truncate(self) -> None:
+        pass

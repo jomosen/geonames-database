@@ -5,22 +5,22 @@ from src.application.contracts.abstract_unit_of_work_factory import AbstractUnit
 from src.application.use_cases.base_use_case import BaseUseCase
 from src.application.use_cases.import_geonames_use_case import ImportGeoNamesUseCase
 from src.infrastructure.services.tqdm_progress_bar import TqdmProgressBar
-from src.presentation.cli.commands.geonames_import_config import build_geonames_import_config
+from src.presentation.cli.commands.build_geonames_import_tasks import build_geonames_import_tasks
 
 
-def import_geonames_data(uow_factory: AbstractUnitOfWorkFactory, logger: AbstractLogger | None = None):
+def import_geonames_command(uow_factory: AbstractUnitOfWorkFactory, logger: AbstractLogger | None = None):
 
-    geonames_import_config_tasks = build_geonames_import_config(logger)
+    import_tasks = build_geonames_import_tasks(logger)
     
     with uow_factory() as uow:
 
-        for import_config_task in geonames_import_config_tasks:
+        for task in import_tasks:
             
             _run_import(
-                getattr(uow, import_config_task["repository_attr"]),
-                import_config_task["importer_cls"],
+                getattr(uow, task["repository_attr"]),
+                task["importer_cls"],
                 ImportGeoNamesUseCase,
-                import_config_task["description"],
+                task["description"],
                 logger,
             )
 

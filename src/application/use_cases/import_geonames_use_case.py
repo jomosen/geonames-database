@@ -19,15 +19,17 @@ class ImportGeoNamesUseCase(BaseUseCase):
         
     def execute(self) -> Tuple[int, Iterator[int]]: 
 
-        count = self.repository.count_all()
-        if count > 0:
-            return 0, iter([])
-
         self.importer.ensure_data_is_available()
 
         total_records = self.importer.count_total_records()
         if total_records == 0:
+            raise Exception(f"File have no records to import.")
+        
+        count = self.repository.count_all()
+        if count == total_records:
             return 0, iter([])
+            
+        self.repository.truncate()
 
         entities = self.importer.load_entities()
 

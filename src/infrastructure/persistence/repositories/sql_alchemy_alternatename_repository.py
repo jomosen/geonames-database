@@ -1,4 +1,5 @@
 from typing import List, Optional
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 from src.domain.alternatename import AlternateName
 from src.domain.abstract_alternatename_repository import AbstractAlternateNameRepository
@@ -53,4 +54,9 @@ class SqlAlchemyAlternateNameRepository(AbstractAlternateNameRepository):
             AlternateNamePersistenceMapper.to_model(entity) for entity in entities
         ]
         self.session.bulk_save_objects(models)
+        self.session.commit()
+
+    def truncate(self):
+        table_name = AlternateNameModel.__tablename__
+        self.session.execute(text(f"TRUNCATE TABLE {table_name}"))
         self.session.commit()

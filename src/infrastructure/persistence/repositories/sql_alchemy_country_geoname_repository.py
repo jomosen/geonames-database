@@ -1,6 +1,6 @@
 from typing import List, Optional, Dict
 from sqlalchemy.orm import Session
-from sqlalchemy import func
+from sqlalchemy import func, text
 from src.domain.abstract_country_geoname_repository import AbstractCountryGeoNameRepository
 from src.domain.country import Country
 from src.infrastructure.persistence.models.country_model import CountryModel
@@ -74,4 +74,9 @@ class SqlAlchemyCountryGeoNameRepository(AbstractCountryGeoNameRepository):
             CountryPersistenceMapper.to_model(entity) for entity in entities
         ]
         self.session.bulk_save_objects(models)
+        self.session.commit()
+
+    def truncate(self):
+        table_name = CountryModel.__tablename__
+        self.session.execute(text(f"TRUNCATE TABLE {table_name}"))
         self.session.commit()

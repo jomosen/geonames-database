@@ -10,7 +10,7 @@ from src.infrastructure.services.city_geonames_file_importer import CityGeoNames
 from src.infrastructure.services.alternatenames_file_importer import AlternateNamesFileImporter
 
 
-def build_geonames_import_config(logger):
+def build_geonames_import_tasks(logger):
     """Factory that builds the import configuration with injected dependencies."""
     return [
         {

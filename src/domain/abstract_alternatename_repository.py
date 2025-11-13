@@ -24,3 +24,7 @@ class AbstractAlternateNameRepository(ABC):
     @abstractmethod
     def bulk_insert(self, entities: List[AlternateName]) -> None:
         pass
+
+    @abstractmethod
+    def truncate(self) -> None: 
+        pass

@@ -45,14 +45,7 @@ class AbstractGeoNamesFileImporter(AbstractGeoNamesImporter[T]):
 
     def ensure_data_is_available(self) -> None:
 
-        if self.read_target_path.exists():
-            if self.logger:
-                self.logger.info(f"Using existing file: {self.read_target_path.name}")
-            return
-        
-        if self.download_target_path.exists():
-            if self.logger:
-                self.logger.info(f"Using existing file: {self.download_target_path.name}")
+        if self.read_target_path.exists() or self.download_target_path.exists():
             return
 
         self.download_file()
@@ -61,23 +54,12 @@ class AbstractGeoNamesFileImporter(AbstractGeoNamesImporter[T]):
             self.extract_file()
 
     def download_file(self) -> None:
-
-        if self.logger:
-            self.logger.info(f"Downloading file from {self.DOWNLOAD_URL}...")
-
         self.file_downloader.download(self.DOWNLOAD_URL, str(self.download_target_path))
-                
-        if self.logger:
-            self.logger.info(f"Saved file to {self.download_target_path.name}")
     
     def extract_file(self) -> None:
 
         zip_path = self.download_target_path
-        txt_path = self.read_target_path
-
         if not zip_path.exists():
-            if self.logger:
-                self.logger.info(f"ZIP file not found, skipping extraction: {zip_path.name}")
             return
 
         txt_filename_in_zip = self.read_target_path.name 
@@ -86,9 +68,6 @@ class AbstractGeoNamesFileImporter(AbstractGeoNamesImporter[T]):
             with zipfile.ZipFile(zip_path, "r") as z:
                 z.extract(txt_filename_in_zip, self.temp_path)
 
-                if self.logger:
-                    self.logger.info(f"Extracted TXT to {txt_path.name}")
-
         except Exception as e:
             if os.path.exists(zip_path):
                 os.remove(zip_path)
@@ -96,7 +75,6 @@ class AbstractGeoNamesFileImporter(AbstractGeoNamesImporter[T]):
             raise ZipUnpackError(f"Failed to unpack {zip_path}: {e}") from e
 
     def count_total_records(self) -> int:
-
         file_path = self.read_target_path
 
         if not file_path.exists() or os.path.getsize(file_path) == 0:
@@ -106,7 +84,10 @@ class AbstractGeoNamesFileImporter(AbstractGeoNamesImporter[T]):
             with open(file_path, "rb") as f:
                 with mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ) as mm:
                     count = 0
-                    for line in iter(mm.readline, b""):
+                    for raw_line in iter(mm.readline, b""):
+                        line = raw_line.decode("utf-8", errors="ignore").strip()
+                        if not line or line.startswith("#"):
+                            continue
                         count += 1
                     return count
         except Exception as e:
@@ -144,5 +125,3 @@ class AbstractGeoNamesFileImporter(AbstractGeoNamesImporter[T]):
 
         if self.download_target_path.exists():
             self.download_target_path.unlink()
-            if self.logger:
-                self.logger.info(f"Removed file: {self.download_target_path.name}")
